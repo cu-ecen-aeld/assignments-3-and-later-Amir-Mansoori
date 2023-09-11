@@ -1,0 +1,7 @@
+export PATH=$PATH:/home/amir/arm-cross-compiler/gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu/bin
+echo "/* information about the version */"
+aarch64-none-linux-gnu-gcc --version
+echo "The compiler is configured for the following target architecture:"
+aarch64-none-linux-gnu-gcc -dumpmachine
+echo "sysroot is:"
+aarch64-none-linux-gnu-gcc -print-sysroot
