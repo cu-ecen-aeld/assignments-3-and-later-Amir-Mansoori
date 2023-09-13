@@ -52,7 +52,7 @@ bool do_exec(int count, ...)
     // this line is to avoid a compile warning before your implementation is complete
     // and may be removed
     command[count] = command[count];
-
+    va_end(args);
 /*
  * TODO:
  *   Execute a system command by calling fork, execv(),
@@ -70,31 +70,32 @@ bool do_exec(int count, ...)
 	printf ("This is Child process\n");
         execv(command[0],command);
 	printf("execv failed!\n");
-	return false;
 	exit(1);
- 
+
     } else
     {
         printf("This is Parent process\n");
-        wait(&status);
-	if(WIFEXITED(status)) {
-		if(WEXITSTATUS(status) == 1) {
-			printf("exit value of child (test) is 1\n");
+	wait(&status);
+	int exit_value, exit_status;
+	exit_value =  WIFEXITED(status);
+	exit_status = WEXITSTATUS(status);
+	if(exit_value) {
+		if( exit_status == 0) {
+			printf("Child process finished successfully!\n");
+			printf("exit value of child is %d\n", exit_status);
+			return true;
+		} else {
+			printf("exit value of child is %d\n", exit_status);
 			printf("Child execution returned false value\n");
 			return false;
 			exit(1);
-		} else {
-			printf("Child process finished successfully!\n");
 		}
-	} else {
-		printf("Child process failed execution!\n");
-		return false;
-		exit(1);
 	}
+	else
+		printf("Child process exited with problem\n");
     }
-    va_end(args);
 
-    return true;
+	return false;
 }
 
 /**
