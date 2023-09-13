@@ -1,4 +1,4 @@
-#include "systemcalls.h"
+        #include "systemcalls.h"
 
 /**
  * @param cmd the command to execute with system()
@@ -16,8 +16,12 @@ bool do_system(const char *cmd)
  *   and return a boolean true if the system() call completed with success
  *   or false() if it returned a failure
 */
-
-    return true;
+    int sys_value;
+    sys_value = system(cmd);
+    if (sys_value == 0)
+        return true;
+    else
+        return false;
 }
 
 /**
@@ -58,7 +62,36 @@ bool do_exec(int count, ...)
  *   as second argument to the execv() command.
  *
 */
+    pid_t pid;
+    int status;
+    pid = fork();
+    if (pid == 0) {
 
+	printf ("This is Child process\n");
+        execv(command[0],command);
+	printf("execv failed!\n");
+	return false;
+	exit(1);
+ 
+    } else
+    {
+        printf("This is Parent process\n");
+        wait(&status);
+	if(WIFEXITED(status)) {
+		if(WEXITSTATUS(status) == 1) {
+			printf("exit value of child (test) is 1\n");
+			printf("Child execution returned false value\n");
+			return false;
+			exit(1);
+		} else {
+			printf("Child process finished successfully!\n");
+		}
+	} else {
+		printf("Child process failed execution!\n");
+		return false;
+		exit(1);
+	}
+    }
     va_end(args);
 
     return true;
@@ -90,10 +123,31 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
  *   Call execv, but first using https://stackoverflow.com/a/13784315/1446624 as a refernce,
  *   redirect standard out to a file specified by outputfile.
  *   The rest of the behaviour is same as do_exec()
+    
+    
  *
 */
+    pid_t pid;
+    int fd;
+    pid = fork();
+    if (pid == 0) {
+
+        printf ("This is Child process\n");
+	fd = open(outputfile,O_CREAT | O_RDWR);
+	dup2(fd,1);
+        close(fd);
+        execv(command[0],command);
+	printf("execv failed\n");
+	return false;
+
+    } else
+    {
+        printf("This is Parent process\n");
+        wait(NULL);
+        printf("Child process finished\n");
+    }
+
 
     va_end(args);
-
     return true;
 }
